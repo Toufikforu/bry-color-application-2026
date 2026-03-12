@@ -1,0 +1,29 @@
+/* Keep it Bootstrap-friendly: no global button/body overrides */
+
+:root {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Let Bootstrap control page layout */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f3f4f6; /* matches your screenshot background */
+  color: #111827;
+}
+
+/* Optional: keep links normal */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}

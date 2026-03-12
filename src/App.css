@@ -1,0 +1,117 @@
+/* --- Android-style colored sliders --- */
+.range {
+  width: 100%;
+  height: 8px;                 /* was 6px */
+  border-radius: 999px;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  background: #d1d5db;
+}
+
+/* Chrome/Edge/Safari thumb */
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+
+/* Firefox thumb */
+.range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+
+/* Firefox track */
+.range::-moz-range-track {
+  height: 8px;                 /* match .range height */
+  border-radius: 999px;
+  background: transparent;
+}
+
+/* Channel gradients (Android-like) */
+.range.b {
+  background: linear-gradient(to right, #dbeafe, #60a5fa, #1d4ed8);
+}
+.range.r {
+  background: linear-gradient(to right, #fee2e2, #fb7185, #dc2626);
+}
+.range.y {
+  background: linear-gradient(to right, #fef9c3, #fde047, #f59e0b);
+}
+
+
+/* --- Android-like picker pin --- */
+.pickerPin {
+  position: absolute;
+  width: 86px;
+  height: 110px;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  z-index: 50;
+}
+
+.pickerPinTop {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  border: 3px solid rgba(255,255,255,0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.pickerPinTop::after {
+  content: "";
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 18px solid #ffffff;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));
+}
+
+.pickerDot {
+  position: absolute;
+  left: 50%;
+  bottom: -30px;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid rgba(0,0,0,0.35);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+
+.pickerCrosshair {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,0,0,0.90);
+  border: 2px solid rgba(255,255,255,0.90);
+}
+
+.btn .bi {
+  line-height: 1;
+  vertical-align: -0.125em;
+}
