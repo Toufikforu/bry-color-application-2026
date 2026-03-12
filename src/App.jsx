@@ -48,7 +48,7 @@ export default function App() {
      Tabs + Picker Mode
   ========================= */
   const [leftTab, setLeftTab] = useState("target"); // target | current
-  const [rightTab, setRightTab] = useState("needed"); // needed | plate | image
+  const [rightTab, setRightTab] = useState("plate"); // needed | plate | image
 
   const [activeBox, setActiveBox] = useState("target"); // target | current
   const [pickEnabled, setPickEnabled] = useState(false);
@@ -324,7 +324,7 @@ export default function App() {
     setImgUrl(null);
 
     setLeftTab("target");
-    setRightTab("needed");
+    setRightTab("plate");
   }
 
   function onUpload(e) {
@@ -346,16 +346,27 @@ export default function App() {
 
   function openRightTab(tab) {
     setRightTab(tab);
+
     if (tab === "image") setPickSource("image");
     if (tab === "plate") setPickSource("plate");
+
+    if (tab === "needed") {
+      setPickEnabled(false);
+      setHover((h) => ({ ...h, show: false }));
+      setHoverPlate((h) => ({ ...h, show: false }));
+    }
   }
 
   function togglePickMode() {
-    if (pickSource === "image" && !imgUrl) {
+    // Only block if IMAGE tab is active
+    if (rightTab === "image" && !imgUrl) {
       alert("Upload an image first.");
       return;
     }
+
     setPickEnabled((p) => !p);
+
+    // clear hover pins
     setHover((h) => ({ ...h, show: false }));
     setHoverPlate((h) => ({ ...h, show: false }));
   }
@@ -638,7 +649,7 @@ export default function App() {
               type="button"
             >
               <i className="bi bi-calculator me-2 fs-6 align-middle" />
-              Needed
+              Solution
             </button>
 
             <button
