@@ -16,18 +16,29 @@ export default function ImagePickerStage({
 }) {
   const VIEW_H = 420;
 
-  /* ================================
-     Mobile Pinch Zoom + Pan State
-  ================================= */
   const wrapRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [startDist, setStartDist] = useState(null);
 
-  // ✅ Reset local mobile zoom state when image changes/remounts
+  /* ================================
+     Reset mobile zoom when image changes
+  ================================= */
   useEffect(() => {
     setScale(1);
     setStartDist(null);
   }, [imgUrl]);
+
+  /* ================================
+     NEW: instantly stop picker hover
+     when picker is turned OFF
+  ================================= */
+  useEffect(() => {
+    if (!pickEnabled) {
+      setStartDist(null);
+      onImageMouseLeave?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pickEnabled]);
 
   const distance = (t1, t2) => {
     const dx = t1.clientX - t2.clientX;
@@ -42,13 +53,11 @@ export default function ImagePickerStage({
     }
 
     if (pickEnabled && e.touches.length === 1) {
-      e.preventDefault();
       onImageMouseMove?.(e);
     }
   };
 
   const onTouchMove = (e) => {
-    // 2-finger pinch zoom
     if (e.touches.length === 2 && startDist) {
       const newDist = distance(e.touches[0], e.touches[1]);
       const ratio = newDist / startDist;
@@ -58,9 +67,9 @@ export default function ImagePickerStage({
       return;
     }
 
-    // 1-finger picker move
-    if (pickEnabled && e.touches.length === 1) {
-      e.preventDefault();
+    if (!pickEnabled) return;
+
+    if (e.touches.length === 1) {
       onImageMouseMove?.(e);
     }
   };
@@ -100,8 +109,6 @@ export default function ImagePickerStage({
 
   /* ================================
      Final Zoom
-     - desktop buttons (zoom prop)
-     - mobile pinch (scale state)
   ================================= */
   const finalZoom = zoom * scale;
 

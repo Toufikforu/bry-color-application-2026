@@ -3,17 +3,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
 import ColorPanel from "./components/ColorPanel";
+import FinalAnalysisPanel from "./components/FinalAnalysisPanel";
+import ImagePickerStage from "./components/ImagePickerStage";
+import ColorPlateStage from "./components/ColorPlateStage";
 import useMagnifierCanvas from "./hooks/useMagnifierCanvas";
 
 import { COLOR_PLATE } from "./utils/colorPlate";
 import { clamp, bryToRgb, bryToRgbString } from "./utils/colorMath";
 import { invertRgbToBry } from "./utils/invertBry";
 import { sampleAverageFiltered } from "./utils/sampling";
-
-import TopTabs from "./components/TopTabs";
-import MobilePreviewBar from "./components/MobilePreviewBar";
-import ResultPanel from "./components/ResultPanel";
-import ControlsPanel from "./components/ControlsPanel";
 
 /* =========================
    Helpers
@@ -622,26 +620,119 @@ export default function App() {
         {/* =========================
            TOP TABS (your mobile-friendly order)
         ========================= */}
-        <TopTabs
-          leftTab={leftTab}
-          rightTab={rightTab}
-          pickEnabled={pickEnabled}
-          setLeftTab={setLeftTab}
-          openRightTab={openRightTab}
-          togglePickMode={togglePickMode}
-          tabClass={tabClass}
-        />
+        <div className="card shadow-sm mb-3">
+          <div
+            className="card-body"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 8,
+              justifyItems: "center",
+            }}
+          >
+            <button
+              className={tabClass(rightTab === "plate")}
+              style={{ width: "100%" }}
+              onClick={() => openRightTab("plate")}
+              type="button"
+            >
+              <i className="bi bi-palette me-2 fs-6 align-middle" />
+              Palette
+            </button>
+
+            <button
+              className={tabClass(rightTab === "image")}
+              style={{ width: "100%" }}
+              onClick={() => openRightTab("image")}
+              type="button"
+            >
+              <i className="bi bi-image me-2 fs-6 align-middle" />
+              Image
+            </button>
+
+            <button
+              className={tabClass(rightTab === "needed")}
+              style={{ width: "100%" }}
+              onClick={() => openRightTab("needed")}
+              type="button"
+            >
+              <i className="bi bi-calculator me-2 fs-6 align-middle" />
+              Solution
+            </button>
+
+            <button
+              className={tabClass(leftTab === "target")}
+              style={{ width: "100%" }}
+              onClick={() => setLeftTab("target")}
+              type="button"
+            >
+              <i className="bi bi-bullseye me-2 fs-6 align-middle" />
+              Target
+            </button>
+
+            <button
+              className={tabClass(leftTab === "current")}
+              style={{ width: "100%" }}
+              onClick={() => setLeftTab("current")}
+              type="button"
+            >
+              <i className="bi bi-compass me-2 fs-6 align-middle" />
+              Current
+            </button>
+
+            <button
+              className={`btn btn-sm ${pickEnabled ? "btn-dark" : "btn-outline-dark"}`}
+              style={{ width: "100%" }}
+              onClick={togglePickMode}
+              type="button"
+            >
+              <i className="bi bi-eyedropper me-2 fs-6 align-middle" />
+              Picker
+            </button>
+          </div>
+        </div>
 
         {/* =========================
    MOBILE COLOR PREVIEW
    Shows picked colors quickly on phone
 ========================= */}
+        {rightTab !== "needed" && (
+          <div className="d-lg-none mb-3">
+            <div className="row g-2">
+              <div className="col-6">
+                <div className="card shadow-sm">
+                  <div className="card-body text-center p-2">
+                    <div className="small fw-semibold mb-1">Target</div>
+                    <div
+                      style={{
+                        height: 40,
+                        borderRadius: 8,
+                        background: targetBg,
+                        border: "1px solid rgba(0,0,0,0.2)",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
 
-        <MobilePreviewBar
-          rightTab={rightTab}
-          targetBg={targetBg}
-          currentBg={currentBg}
-        />
+              <div className="col-6">
+                <div className="card shadow-sm">
+                  <div className="card-body text-center p-2">
+                    <div className="small fw-semibold mb-1">Current</div>
+                    <div
+                      style={{
+                        height: 40,
+                        borderRadius: 8,
+                        background: currentBg,
+                        border: "1px solid rgba(0,0,0,0.2)",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* =========================
            MAIN ROW
@@ -652,59 +743,278 @@ export default function App() {
           {/* =========================
              RESULT PANEL (mobile first)
           ========================= */}
-          <ResultPanel
-            rightTab={rightTab}
-            imgZoom={imgZoom}
-            zoomIn={zoomIn}
-            zoomOut={zoomOut}
-            zoomReset={zoomReset}
-            resultCollapsedMobile={resultCollapsedMobile}
-            setResultCollapsedMobile={setResultCollapsedMobile}
-            target={target}
-            current={current}
-            targetBg={targetBg}
-            currentBg={currentBg}
-            plateWrapRef={plateWrapRef}
-            hoverPlate={hoverPlate}
-            pickEnabled={pickEnabled}
-            onPlateMouseMove={onPlateMouseMove}
-            onPlateMouseLeave={onPlateMouseLeave}
-            onPlateClick={onPlateClick}
-            pinCanvasRef={pinCanvasRef}
-            uploadKey={uploadKey}
-            onUpload={onUpload}
-            imgUrl={imgUrl}
-            imgRef={imgRef}
-            hover={hover}
-            onImageClick={onImageClick}
-            onImageMouseMove={onImageMouseMove}
-            onImageMouseLeave={onImageMouseLeave}
-          />
+          <div className="col-12 col-lg-6">
+            <div className="card shadow-sm">
+              <div className="card-body">
+                {/* Header row */}
+                <div className="d-flex align-items-center justify-content-between">
+                  <div className="h5 mb-0">
+                    {rightTab === "needed"
+                      ? "Needed"
+                      : rightTab === "plate"
+                        ? "Plate"
+                        : "Image"}
+                  </div>
+
+                  <div className="d-flex align-items-center gap-2">
+                    {/* Show zoom controls only on Image tab */}
+                    {rightTab === "image" && (
+                      <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div className="small text-muted fw-semibold">
+                          Zoom:{" "}
+                          <span className="text-dark">
+                            {Math.round(imgZoom * 100)}%
+                          </span>
+                        </div>
+
+                        <div
+                          className="btn-group"
+                          role="group"
+                          aria-label="Zoom controls"
+                        >
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-dark"
+                            onClick={zoomOut}
+                            title="Zoom out"
+                          >
+                            <i className="bi bi-zoom-out fs-6 align-middle" />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-dark"
+                            onClick={zoomReset}
+                            title="Reset zoom"
+                          >
+                            <i className="bi bi-aspect-ratio fs-6 align-middle" />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-dark"
+                            onClick={zoomIn}
+                            title="Zoom in"
+                          >
+                            <i className="bi bi-zoom-in fs-6 align-middle" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Mobile only +/- collapse */}
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary d-lg-none"
+                      onClick={() => setResultCollapsedMobile((v) => !v)}
+                      title={
+                        resultCollapsedMobile ? "Show panel" : "Hide panel"
+                      }
+                    >
+                      <i
+                        className={`bi ${resultCollapsedMobile ? "bi-plus" : "bi-dash"} fs-5`}
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary"
+                      title="Info"
+                    >
+                      <i className="bi bi-info-circle fs-6 align-middle" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Hide/show only on mobile */}
+                <div
+                  className={resultCollapsedMobile ? "d-none d-lg-block" : ""}
+                >
+                  <hr className="my-3" />
+
+                  {rightTab === "needed" ? (
+                    <FinalAnalysisPanel
+                      target={target}
+                      current={current}
+                      targetBg={targetBg}
+                      currentBg={currentBg}
+                    />
+                  ) : rightTab === "plate" ? (
+                    <div className="w-100">
+                      <ColorPlateStage
+                        plateWrapRef={plateWrapRef}
+                        hover={hoverPlate}
+                        pickEnabled={pickEnabled}
+                        onMouseMove={onPlateMouseMove}
+                        onMouseLeave={onPlateMouseLeave}
+                        onClick={onPlateClick}
+                        pinCanvasRef={pinCanvasRef}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-100">
+                      {/* =========================
+     IMAGE TOOLS ROW
+     - Upload first
+     - Zoom controls second
+  ========================= */}
+                      <div className="d-flex flex-column gap-3 mb-3">
+                        {/* Upload */}
+                        <div className="d-flex align-items-center justify-content-between gap-2">
+                          <label className="small fw-semibold mb-0">
+                            Upload Image
+                          </label>
+
+                          <input
+                            name="image-upload"
+                            key={uploadKey || 0}
+                            className="form-control form-control-sm"
+                            style={{ maxWidth: 220 }}
+                            type="file"
+                            accept="image/*"
+                            onChange={onUpload}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Image Preview */}
+                      <ImagePickerStage
+                        key={`image-stage-${rightTab}-${imgUrl || "empty"}`}
+                        imgUrl={imgUrl}
+                        imgRef={imgRef}
+                        hover={hover}
+                        pickEnabled={pickEnabled}
+                        onImageClick={onImageClick}
+                        onImageMouseMove={onImageMouseMove}
+                        onImageMouseLeave={onImageMouseLeave}
+                        pinCanvasRef={pinCanvasRef}
+                        zoom={imgZoom}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* =========================
              CONTROLS PANEL (sliders)
           ========================= */}
-          <ControlsPanel
-            leftTab={leftTab}
-            controlsCollapsedMobile={controlsCollapsedMobile}
-            setControlsCollapsedMobile={setControlsCollapsedMobile}
-            lockTarget={lockTarget}
-            lockCurrent={lockCurrent}
-            setLockTarget={setLockTarget}
-            setLockCurrent={setLockCurrent}
-            resetApp={resetApp}
-            transferTargetToCurrent={transferTargetToCurrent}
-            transferCurrentToTarget={transferCurrentToTarget}
-            target={target}
-            current={current}
-            setTargetWithManual={setTargetWithManual}
-            setCurrentWithManual={setCurrentWithManual}
-            targetBg={targetBg}
-            currentBg={currentBg}
-            targetNote={targetNote}
-            currentNote={currentNote}
-            transferChannel={transferChannel}
-          />
+          <div className="col-12 col-lg-6">
+            <div className="card shadow-sm">
+              <div className="card-body">
+                {/* Header row */}
+                <div className="d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center gap-2">
+                    <div className="h5 mb-0">
+                      {leftTab === "target" ? "Target" : "Current"}
+                    </div>
+                    <span className="badge text-bg-light border fw-semibold">
+                      Adjustment
+                    </span>
+                  </div>
+
+                  <div className="d-flex align-items-center gap-2">
+                    {/* Mobile only +/- collapse */}
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary d-lg-none"
+                      onClick={() => setControlsCollapsedMobile((v) => !v)}
+                      title={
+                        controlsCollapsedMobile
+                          ? "Show sliders"
+                          : "Hide sliders"
+                      }
+                    >
+                      <i
+                        className={`bi ${controlsCollapsedMobile ? "bi-plus" : "bi-dash"} fs-5`}
+                      />
+                    </button>
+
+                    {/* LOCK */}
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      type="button"
+                      onClick={() => {
+                        if (leftTab === "target") setLockTarget((v) => !v);
+                        else setLockCurrent((v) => !v);
+                      }}
+                      title="Lock"
+                    >
+                      <i
+                        className={`bi ${
+                          leftTab === "target"
+                            ? lockTarget
+                              ? "bi-lock-fill"
+                              : "bi-unlock"
+                            : lockCurrent
+                              ? "bi-lock-fill"
+                              : "bi-unlock"
+                        }`}
+                      />
+                    </button>
+
+                    {/* RESET */}
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      type="button"
+                      onClick={resetApp}
+                      title="Reset"
+                    >
+                      <i className="bi bi-arrow-counterclockwise fs-6 align-middle" />
+                    </button>
+
+                    {/* TRANSFER */}
+                    <button
+                      className="btn btn-sm btn-outline-dark"
+                      type="button"
+                      onClick={
+                        leftTab === "target"
+                          ? transferTargetToCurrent
+                          : transferCurrentToTarget
+                      }
+                      title={
+                        leftTab === "target"
+                          ? "Transfer Values to Current"
+                          : "Transfer Values to Target"
+                      }
+                    >
+                      <i className="bi bi-arrow-left-right fs-6 align-middle" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Hide/show only on mobile */}
+                <div
+                  className={controlsCollapsedMobile ? "d-none d-lg-block" : ""}
+                >
+                  <hr className="my-3" />
+
+                  {leftTab === "target" ? (
+                    <ColorPanel
+                      title={null}
+                      values={target}
+                      setValues={setTargetWithManual}
+                      bg={targetBg}
+                      note={targetNote}
+                      disabled={lockTarget}
+                      onTransferChannel={transferChannel}
+                    />
+                  ) : (
+                    <ColorPanel
+                      title={null}
+                      values={current}
+                      setValues={setCurrentWithManual}
+                      bg={currentBg}
+                      note={currentNote}
+                      disabled={lockCurrent}
+                      onTransferChannel={transferChannel}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* =========================

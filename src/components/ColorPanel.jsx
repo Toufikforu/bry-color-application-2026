@@ -9,6 +9,7 @@ export default function ColorPanel({
   bg,
   note,
   disabled = false,
+  onTransferChannel,
 }) {
   return (
     <div>
@@ -34,20 +35,25 @@ export default function ColorPanel({
           value={values.b}
           disabled={disabled}
           onChange={(v) => setValues((p) => ({ ...p, b: v }))}
+          onTransfer={() => onTransferChannel?.("b")}
         />
+
         <Slider
           label="R"
           channelClass="r"
           value={values.r}
           disabled={disabled}
           onChange={(v) => setValues((p) => ({ ...p, r: v }))}
+          onTransfer={() => onTransferChannel?.("r")}
         />
+
         <Slider
           label="Y"
           channelClass="y"
           value={values.y}
           disabled={disabled}
           onChange={(v) => setValues((p) => ({ ...p, y: v }))}
+          onTransfer={() => onTransferChannel?.("y")}
         />
       </div>
 
